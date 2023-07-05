@@ -17,18 +17,24 @@ authenticator.use(
     const password = form.get('password') as String
     if(!username || username?.length === 0) throw new AuthorizationError("Bad credentials: Username must not be empty")
     if(typeof username !== 'string') throw new AuthorizationError("Username must be a string")
-    if(password?.length === 0 ||  !password) throw new AuthorizationError("Passwor error")
+    if(password?.length === 0 ||  !password) throw new AuthorizationError("Password error: empty")
 
     const userExists = await db.user.findUnique({
       where: {
         username: username
       }
     })
+    // check if user exists
     if(!userExists) {
       console.log("error: user does not exist");
       throw new AuthorizationError("User does not exist")
-    } else {
-      return {...userExists}
+    }
+    // check if password is correct
+    if (userExists?.password === password) {
+        return {...userExists}
+    } else { 
+      console.log("password does not match"); //throw an error if something goes wrong
+      throw new AuthorizationError("Please enter the password again") 
     }
   }),
 )
